@@ -10,9 +10,9 @@ const orderSchema = new mongoose.Schema({
         quantity: Number,
         price: Number
     }],
-    totalPrice: { type: Number, required: true },
+    totalPrice: { type: Number},
     // 2. ضيفنا الـ Address عشان الدليفري والـ Order Tracking
-    deliveryAddress: { type: String, required: true }, 
+    deliveryAddress: { type: String}, 
     status: { 
         type: String, 
         // 3. زودنا حالة 'Ready for Pickup' دي اللي الدليفري بيشوفها عشان يوافق يوصل

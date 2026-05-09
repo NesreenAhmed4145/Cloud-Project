@@ -1,16 +1,22 @@
+// Cloud-Project\payment-service\src\app.js
 const express = require('express');
+const cors = require('cors');
 const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
+// Cloud-Project\payment-service\src\app.js
+const express = require('express');
+const cors = require('cors');
+const paymentRoutes = require('./routes/payment.routes');
 
-// Middleware لتحويل البيانات اللي جاية لـ JSON
+const app = express();
+app.use(cors()); 
 app.use(express.json());
 
-// ربط المسارات (Routes)
-app.use('/api', paymentRoutes);
+// التعديل الجوهري: هنخليها تبدأ بـ /api عشان تطابق الـ Gateway
+app.use('/api', paymentRoutes); 
 
-// رابط بسيط للتأكد إن السيرفر شغال (Health Check)
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
   res.send('Payment Service is Running...');
 });
 

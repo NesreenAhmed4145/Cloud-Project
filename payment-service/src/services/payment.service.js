@@ -1,11 +1,13 @@
 const Payment = require('../models/Payment');
-const { v4: uuidv4 } = require('uuid');
+// حطي ده ✅
+const crypto = require('crypto');
 const axios = require('axios');
 
 exports.createPayment = async (data) => {
   // بنخزن البيانات اللي جاية (المبلغ، الطريقة، وتفاصيل الدفع)
   return await Payment.create(data);
 };
+// payment-service/src/services/payment.service.js
 
 exports.processPayment = async (id, paymentDetails) => {
   const payment = await Payment.findById(id);
@@ -13,26 +15,28 @@ exports.processPayment = async (id, paymentDetails) => {
 
   let isSuccess = false;
   let failureReason = "";
-
-  // المنطق الواقعي بناءً على طريقة الدفع
-  const { method } = payment; // card, fawry, vodafone_cash
+  const { method } = payment;
 
   if (method === 'card') {
-    // محاكاة التحقق من الفيزا (واقعي)
-    const { cardNumber, expiryDate, cvv } = paymentDetails;
+    // 👈 التعديل هنا: بنقرأ من cardDetails اللي جاية من الفرونت إند
+    const { number, expiry, cvv } = paymentDetails.cardDetails || {};
     
-    // 1. التأكد من الـ CVV (لازم يكون 3 أرقام)
+    if (!expiry) {
+        throw new Error("Expiry date is missing in request");
+    }
+
+    // التأكد من الـ CVV
     const isCvvValid = /^\d{3}$/.test(cvv);
     
-    // 2. التأكد من تاريخ الصلاحية (بسيط للمشروع)
-    const [month, year] = expiryDate.split('/').map(Number);
+    // تقسيم التاريخ (اللي هو دلوقتي اسمه expiry)
+    const [month, year] = expiry.split('/').map(Number);
     const now = new Date();
-    const currentYear = now.getFullYear() % 100; // بياخد آخر رقمين 2026 -> 26
+    const currentYear = now.getFullYear() % 100;
     const currentMonth = now.getMonth() + 1;
     
     const isNotExpired = (year > currentYear) || (year === currentYear && month >= currentMonth);
 
-    if (isCvvValid && isNotExpired && cardNumber.length >= 14) {
+    if (isCvvValid && isNotExpired && number && number.length >= 14) {
       isSuccess = true;
     } else {
       failureReason = !isNotExpired ? "Card Expired" : "Invalid Card Details";
@@ -55,7 +59,8 @@ exports.processPayment = async (id, paymentDetails) => {
   // تحديث الحالة بناءً على النتيجة الواقعية
   if (isSuccess) {
     payment.status = 'completed';
-    payment.transactionId = uuidv4();
+    // بدلاً من uuidv4()
+payment.transactionId = crypto.randomUUID();
   } else {
     payment.status = 'failed';
     console.log(`❌ Payment failed reason: ${failureReason}`);

@@ -109,37 +109,70 @@ const MyCart = () => {
   const total = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   // --- start menna ---
-  const handleOrderNow = async () => {
-    if (!user) {
-      alert("Please login first!");
-      return navigate('/login');
-    }
+  // const handleOrderNow = async () => {
+  //   if (!user) {
+  //     alert("Please login first!");
+  //     return navigate('/login');
+  //   }
 
+  //   const orderData = {
+  //     userId: user.id, // ID اليوزر من التوكن/الكونتيكست
+  //     restaurantId: cartItems[0]?.restaurantId || "default_id", // اتأكدي إن الـ item فيه ريستورانت id
+  //     items: cartItems.map(item => ({
+  //       name: item.name,
+  //       quantity: item.quantity,
+  //       price: item.price
+  //     })),
+  //     totalPrice: total,
+  //     deliveryAddress: user.address[0] || "No Address Provided", // بناخد أول عنوان مسجله
+  //   };
+
+  //   try {
+  //     const response = await axios.post('http://localhost:8000/api/orders', orderData);
+      
+  //     if (response.status === 201) {
+  //       alert("Order Placed Successfully! 🚀");
+  //       // clearCart(); // امسحي الكاريت بعد نجاح الطلب لو الدالة موجودة
+  //       navigate('/order-history'); // وديه لصفحة التتبع فوراً
+  //     }
+  //   } catch (err) {
+  //     console.error("Order Error:", err);
+  //     alert("Failed to place order. Try again!");
+  //   }
+  // };
+ const handleOrderNow = async () => {
+    // 1. تجهيز البيانات بأمان تام
     const orderData = {
-      userId: user.id, // ID اليوزر من التوكن/الكونتيكست
-      restaurantId: cartItems[0]?.restaurantId || "default_id", // اتأكدي إن الـ item فيه ريستورانت id
-      items: cartItems.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price
-      })),
-      totalPrice: total,
-      deliveryAddress: user.address[0] || "No Address Provided", // بناخد أول عنوان مسجله
+        userId: user?._id || user?.id || "65f123456789abcdef012345",
+        restaurantId: cartItems[0]?.restaurantId || "65f123456789abcdef012345",
+        items: cartItems.map(item => ({
+            id: item._id || item.id,
+            quantity: item.quantity,
+            price: item.price
+        })),
+        totalPrice: Number(total), 
+        deliveryAddress: "Cairo, Egypt",
+        status: 'Pending'
     };
 
     try {
-      const response = await axios.post('http://localhost:8000/api/orders', orderData);
-      
-      if (response.status === 201) {
-        alert("Order Placed Successfully! 🚀");
-        // clearCart(); // امسحي الكاريت بعد نجاح الطلب لو الدالة موجودة
-        navigate('/order-history'); // وديه لصفحة التتبع فوراً
-      }
-    } catch (err) {
-      console.error("Order Error:", err);
-      alert("Failed to place order. Try again!");
+        // 2. هنكلم خدمة الأوردرات مباشرة
+        const response = await axios.post('http://localhost:8000/api/orders', orderData);
+        
+        // 3. لو نجح
+        alert("ألف مبروك! الأوردر اتسجل بنجاح 🎉🚀");
+        navigate('/checkout'); 
+
+    } catch (error) {
+        // 4. الحماية القصوى عشان الرياكت ميعملش كراش (dispatchDiscreteEvent)
+        const errorMsg = error.response 
+            ? JSON.stringify(error.response.data) 
+            : error.message; // لو CORS أو Network error هيقرأ دي بأمان
+            
+        console.error("❌ المشكلة الحقيقية هنا:", errorMsg);
+        alert("تنبيه: " + errorMsg); // هيطلعلك المشكلة في Alert بدل ما الكونسول يبوظ
     }
-  };
+};
   // --- end menna ---
 
   return (
