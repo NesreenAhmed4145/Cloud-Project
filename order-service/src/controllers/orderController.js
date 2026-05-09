@@ -1,14 +1,34 @@
 const Order = require('../models/Order');
 
 // 1. إنشاء طلب جديد (الزبون اللي بيعمله)
+// exports.createOrder = async (req, res) => {
+//     try {
+//         // بنضيف التعديلات الجديدة زي deliveryAddress و default status
+//         const newOrder = new Order(req.body);
+//         const savedOrder = await newOrder.save();
+//         res.status(201).json(savedOrder);
+//     } catch (err) {
+//         res.status(500).json({ message: "Error creating order", error: err });
+//     }
+// };
 exports.createOrder = async (req, res) => {
     try {
-        // بنضيف التعديلات الجديدة زي deliveryAddress و default status
-        const newOrder = new Order(req.body);
+        // هناخد الـ userId من اللي مبعوت في الطلب (Body)
+        const { restaurantId, items, totalPrice, userId } = req.body;
+
+        const newOrder = new Order({
+            userId: userId || "guest_user", // لو مجاش يوزر حط أي قيمة مؤقتة
+            restaurantId,
+            items,
+            totalAmount: totalPrice,
+            status: 'Pending'
+        });
+
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
-        res.status(500).json({ message: "Error creating order", error: err });
+        console.error("Error:", err.message);
+        res.status(500).json({ message: err.message });
     }
 };
 
