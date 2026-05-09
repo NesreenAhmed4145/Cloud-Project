@@ -1,0 +1,15 @@
+services:
+  restaurant-service:
+    build: 
+      context: ./restaurant-service
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - food-delivery-network
+
+networks:
+  food-delivery-network:
+    driver: bridge

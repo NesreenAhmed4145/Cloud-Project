@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # 1. خدمة قاعدة البيانات
+  mongodb:
+    image: mongo:latest
+    container_name: food_delivery_mongo
+    ports:
+      - "27017:27017"
+
+  # 2. خدمة المستخدمين
+  user-service:
+    build: ./user-service
+    container_name: food_delivery_user
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/food_delivery_users 
+      - PORT=5000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+
+  # 3. خدمة المطاعم
+  restaurant-service:
+    build: ./restaurant-service
+    container_name: food_delivery_restaurant
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/food_delivery_restaurants
+      - PORT=5001
+    depends_on:
+      - mongodb
+    volumes:
+      - ./restaurant-service:/app
+      - /app/node_modules
+
+  # 4. خدمة الطلبات
+  order-service:
+    build: ./order-service
+    container_name: food_delivery_order
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/food_delivery_orders
+      - PORT=5002
+    depends_on:
+      - mongodb
+    volumes:
+      - ./order-service:/app
+      - /app/node_modules
+
+  # 5. خدمة الدفع
+  payment-service:
+    build: ./payment-service
+    container_name: food_delivery_payment
+    ports:
+      - "5003:5003"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/food_delivery_payments
+      - PORT=5003
+    depends_on:
+      - mongodb
+    volumes:
+      - ./payment-service:/app
+      - /app/node_modules
+
+  # 6. البوابة (API Gateway)
+  api-gateway:
+    build: ./api-gateway
+    container_name: food_delivery_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - user-service
+      - restaurant-service
+      - order-service
+      - payment-service
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
