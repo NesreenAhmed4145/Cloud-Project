@@ -6,53 +6,37 @@ const OrdersDashboard = () => {
   const [orders, setOrders] = useState([]); // مكان حفظ الطلبات
   const [loading, setLoading] = useState(true); // حالة التحميل
 
-  // دالة لجلب البيانات من موظف الاستقبال (API Gateway اللي شغال على 8000)
-  // const fetchOrders = async () => {
-  //   try {
-  //     const response = await axios.get('http://localhost:8000/api/orders');
-      
-  //     // السطر ده هيطبعلك الداتا في الـ Console عشان تتأكدي من أسماء الحقول اللي جاية من الباك إند
-  //     console.log("Orders Data from Backend:", response.data); 
-      
-  //     setOrders(response.data);
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error("Error fetching orders:", error);
-  //     setLoading(false);
-  //   }
-  // };
-  
-  //اللى كانت شغلة معايا وانا بعمل تيست
-//   const fetchOrders = async () => {
-//   try {
-//     const response = await axios.get('http://localhost:8000/api/orders');
-//     console.log("Data from API:", response.data); // السطر ده مهم جداً
-//     setOrders(Array.isArray(response.data) ? response.data : []); // تأكدي إنها Array
-//     setLoading(false);
-//   } catch (error) {
-//     console.error("Fetch error:", error);
-//     setLoading(false);
-//   }
-// };
+  // --- start menna: تعديل الـ fetch والـ update ---
+  const fetchOrders = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user')); 
+      const restaurantId = user?._id || user?.id; // هنا الـ ID بتاع صاحب المطعم هو الـ Restaurant ID
 
-const fetchOrders = async () => {
-  try {
-    // 1. هاتي بيانات اليوزر من الـ localStorage (اللي اتسيفت وقت الـ Login)
-    const user = JSON.parse(localStorage.getItem('user')); 
-    const userId = user?._id || user?.id; // اتأكدي السيف باسم id ولا _id
-
-    if (userId) {
-      // 2. ابعتي الـ ID في اللينك للبوابة
-      const response = await axios.get(`http://localhost:8000/api/orders/${userId}`);
-      console.log("Orders for this user:", response.data);
-      setOrders(response.data);
+      if (restaurantId) {
+        // بنادي على المسار المخصص للمطاعم اللي عملناه في الـ Controller
+        const response = await axios.get(`http://localhost:8000/api/orders/restaurant/${restaurantId}`);
+        setOrders(response.data);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setLoading(false);
     }
-    setLoading(false);
-  } catch (error) {
-    console.error("Fetch error:", error);
-    setLoading(false);
-  }
-};
+  };
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      // بننادي على الـ Patch Route اللي عملناه في الـ Gateway
+      await axios.patch(`http://localhost:8000/api/orders/${orderId}/status`, {
+        status: newStatus
+      });
+      // بعد ما نحدث، بنجيب البيانات تاني عشان الجدول يتحدث
+      fetchOrders(); 
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
+  };
+  // --- end menna ---
 
   useEffect(() => {
     fetchOrders();
@@ -87,23 +71,66 @@ const fetchOrders = async () => {
         <tbody>
           {orders.length > 0 ? orders.map((order) => (
             <tr key={order._id}>
+              {/* 1. عمود الـ ID */}
               <td>{order._id ? order._id.substring(0, 8) : 'N/A'}...</td>
-              {/* خدي بالك لو الباك إند بيبعت الاسم أو السعر بأسماء تانية، هتحتاجي تعدلي دول */}
+              
+              {/* 2. عمود الزبون */}
               <td>{order.userId || 'Guest User'}</td>
-              <td>${order.totalPrice || 0}</td>
+              
+              {/* 3. عمود السعر */}
+              <td>{order.totalPrice || 0} EGP</td>
+              
+              {/* 4. عمود الحالة مع Badge ملون */}
               <td>
-                <Badge bg={order.status === 'pending' ? 'warning' : 'success'}>
+                <Badge bg={
+                  order.status === 'Pending' ? 'warning' : 
+                  order.status === 'Ready for Pickup' ? 'info' : 'success'
+                }>
                   {order.status || 'unknown'}
                 </Badge>
               </td>
+              
+              {/* 5. عمود الـ Actions (الزراير اللي بتغير الحالة) */}
               <td>
-                <Button variant="info" size="sm" className="me-2">View</Button>
-                <Button variant="success" size="sm">Accept</Button>
+                <div className="d-flex gap-2">
+                  {order.status === 'Pending' && (
+                    <Button 
+                      variant="success" 
+                      size="sm" 
+                      onClick={() => handleUpdateStatus(order._id, 'Confirmed')}
+                    >
+                      Confirm ✅
+                    </Button>
+                  )}
+                  
+                  {order.status === 'Confirmed' && (
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      onClick={() => handleUpdateStatus(order._id, 'Preparing')}
+                    >
+                      Start Cooking 👨‍🍳
+                    </Button>
+                  )}
+
+                  {order.status === 'Preparing' && (
+                    <Button 
+                      variant="warning" 
+                      size="sm" 
+                      onClick={() => handleUpdateStatus(order._id, 'Ready for Pickup')}
+                    >
+                      Ready for Pickup 📦
+                    </Button>
+                  )}
+                  
+                  {/* زرار عرض التفاصيل دايماً موجود */}
+                  <Button variant="outline-info" size="sm">View</Button>
+                </div>
               </td>
             </tr>
           )) : (
             <tr>
-              <td colSpan="5" className="text-center">No orders found.</td>
+              <td colSpan="5" className="text-center py-4">No orders found for your restaurant.</td>
             </tr>
           )}
         </tbody>

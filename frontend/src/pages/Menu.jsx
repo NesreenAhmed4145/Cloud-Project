@@ -105,6 +105,9 @@ const Menu = () => {
                             id: item._id, 
                             name: item.itemName, 
                             price: item.price,
+                            // start menna
+                            restaurantId: id,
+                            //end menna
                             quantity: 1 
                         });
                         alert(`${item.itemName} added to your cart! 🛒`);

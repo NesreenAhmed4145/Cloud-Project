@@ -16,6 +16,9 @@ import Profile from './pages/Profile';
 import RestaurantSettings from './pages/RestaurantSettings';
 // استدعاء الـ AuthContext
 import { useAuth } from './context/AuthContext'; 
+//------start menna------
+import DeliveryDashboard from './pages/DeliveryDashboard';
+//------end menna------
 
 const Sidebar = () => {
   const location = useLocation();
@@ -25,17 +28,37 @@ const Sidebar = () => {
 
   if (hideSidebar) return null;
 
-  const allMenuItems = [
-    { name: 'Home', path: '/', icon: 'fa-house' },
-    { name: 'Profile', path: '/profile', icon: 'fa-user' },
-    { name: 'Restaurants', path: '/restaurants', icon: 'fa-utensils' },
-    { name: 'My Cart', path: '/cart', icon: 'fa-cart-shopping' },
-    { name: 'Order Tracking', path: '/order-history', icon: 'fa-clock-rotate-left' },
-    // دول بتوع المطعم ومميزين بـ type
-    { name: 'Admin Orders', path: '/admin/orders', icon: 'fa-gauge-high', type: 'restaurant_owner' },
-    { name: 'Menu Editor', path: '/admin/menu', icon: 'fa-pen-to-square', type: 'restaurant_owner' },
-    { name: 'Restaurant Info', path: '/admin/restaurant-settings', icon: 'fa-store', type: 'restaurant_owner' },
-  ];
+  // const allMenuItems = [
+  //   { name: 'Home', path: '/', icon: 'fa-house' },
+  //   { name: 'Profile', path: '/profile', icon: 'fa-user' },
+  //   { name: 'Restaurants', path: '/restaurants', icon: 'fa-utensils' },
+  //   { name: 'My Cart', path: '/cart', icon: 'fa-cart-shopping' },
+  //   { name: 'Order Tracking', path: '/order-history', icon: 'fa-clock-rotate-left' },
+  //   // دول بتوع المطعم ومميزين بـ type
+  //   { name: 'Admin Orders', path: '/admin/orders', icon: 'fa-gauge-high', type: 'restaurant_owner' },
+  //   { name: 'Menu Editor', path: '/admin/menu', icon: 'fa-pen-to-square', type: 'restaurant_owner' },
+  //   { name: 'Restaurant Info', path: '/admin/restaurant-settings', icon: 'fa-store', type: 'restaurant_owner' },
+  // ];
+
+  // --- start menna ---
+const allMenuItems = [
+  { name: 'Home', path: '/', icon: 'fa-house' },
+  { name: 'Profile', path: '/profile', icon: 'fa-user' },
+  // الروابط دي تظهر للـ Client فقط
+  { name: 'Restaurants', path: '/restaurants', icon: 'fa-utensils', type: 'customer' },
+  { name: 'My Cart', path: '/cart', icon: 'fa-cart-shopping', type: 'customer' },
+  { name: 'Order Tracking', path: '/order-history', icon: 'fa-clock-rotate-left', type: 'customer' },
+  
+  // روابط صاحب المطعم
+  { name: 'Admin Orders', path: '/admin/orders', icon: 'fa-gauge-high', type: 'restaurant_owner' },
+  { name: 'Menu Editor', path: '/admin/menu', icon: 'fa-pen-to-square', type: 'restaurant_owner' },
+  { name: 'Restaurant Info', path: '/admin/restaurant-settings', icon: 'fa-store', type: 'restaurant_owner' },
+
+  // روابط الطيار (Delivery)
+  { name: 'Available Tasks', path: '/delivery/tasks', icon: 'fa-truck-ramp-box', type: 'delivery' },
+  { name: 'My Deliveries', path: '/delivery/history', icon: 'fa-route', type: 'delivery' },
+];
+// --- end menna ---
 
   // التعديل هنا 👇: بنسأل على item.type و user.type
   const visibleMenuItems = allMenuItems.filter(
@@ -120,6 +143,12 @@ function App() {
           <Route path="/admin/menu" element={<MenuManagement />} />
           <Route path="/admin/orders" element={<OrdersDashboard />} />
           <Route path="/admin/restaurant-settings" element={<RestaurantSettings />} />
+          {/* --- start menna ---*/}
+          {/* Delivery Pages */}
+          <Route path="/delivery/tasks" element={<DeliveryDashboard />} /> 
+          {/* لو معندكيش صفحة تاريخ الدليفري ممكن تعملي صفحة جديدة او تستخدمي داشبورد مؤقتا */}
+          <Route path="/delivery/history" element={<div>قيد التنفيذ</div>} /> 
+          {/* --- end menna ---*/}
         </Routes>
       </Layout>
     </Router>
