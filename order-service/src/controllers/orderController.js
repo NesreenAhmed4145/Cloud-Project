@@ -85,3 +85,21 @@ exports.getUserOrders = async (req, res) => {
         res.status(500).json({ message: "Error fetching user orders", error: err });
     }
 };
+
+// 3. عرض الطلبات المتاحة للتوصيل (للدليفري)
+exports.getAvailableOrders = async (req, res) => {
+    try {
+        console.log("🛵 Fetching available orders for delivery...");
+        
+        // هنجيب الأوردرات اللي حالتها "Ready for Pickup" ومفيش طيار استلمها (deliveryId: null)
+        const orders = await Order.find({ 
+            status: 'Ready for Pickup',
+            deliveryId: null 
+        }).sort({ createdAt: -1 });
+
+        console.log(`✅ Found ${orders.length} orders ready for delivery`);
+        res.status(200).json(orders);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching available orders", error: err.message });
+    }
+};
