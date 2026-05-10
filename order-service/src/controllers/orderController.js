@@ -1,62 +1,43 @@
 const Order = require('../models/Order');
 
-// 1. إنشاء طلب جديد (الزبون اللي بيعمله)
-// exports.createOrder = async (req, res) => {
-//     try {
-//         // بنضيف التعديلات الجديدة زي deliveryAddress و default status
-//         const newOrder = new Order(req.body);
-//         const savedOrder = await newOrder.save();
-//         res.status(201).json(savedOrder);
-//     } catch (err) {
-//         res.status(500).json({ message: "Error creating order", error: err });
-//     }
-// };
+// 1. إنشاء طلب جديد
 exports.createOrder = async (req, res) => {
     try {
-        // هناخد الـ userId من اللي مبعوت في الطلب (Body)
-        const { restaurantId, items, totalPrice, userId } = req.body;
+        const { restaurantId, items, totalPrice, userId, deliveryAddress } = req.body;
 
         const newOrder = new Order({
-            userId: userId || "guest_user", // لو مجاش يوزر حط أي قيمة مؤقتة
+            userId: userId || "guest_user",
             restaurantId,
             items,
-            totalAmount: totalPrice,
+            totalPrice, // 👈 وحدنا الاسم هنا عشان يطابق الـ Schema
+            deliveryAddress,
             status: 'Pending'
         });
 
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
-        console.error("Error:", err.message);
         res.status(500).json({ message: err.message });
     }
 };
 
-// 2. عرض طلبات المطعم (لصاحب المطعم)
+// 2. عرض طلبات المطعم (النسخة المتظبطة)
 exports.getRestaurantOrders = async (req, res) => {
     try {
         const { restaurantId } = req.params;
-        // بنجيب الأوردرات الخاصة بالمطعم ده ومرتبة من الأحدث
-        const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
+        console.log("📩 Request for Restaurant ID:", restaurantId);
+
+        // بنحول الـ ID لـ String عشان المونجو ميزعلش
+        const orders = await Order.find({ restaurantId: restaurantId.toString() }).sort({ createdAt: -1 });
+
+        console.log(`✅ Found ${orders.length} orders`);
         res.status(200).json(orders);
     } catch (err) {
-        res.status(500).json({ message: "Error fetching restaurant orders", error: err });
+        res.status(500).json({ message: "Error", error: err.message });
     }
 };
 
-// 3. عرض الطلبات المتاحة للتوصيل (للدليفري)
-// دي بتجيب الأوردرات اللي حالتها "Ready for Pickup" ومفيش طيار خدها لسه
-exports.getAvailableOrders = async (req, res) => {
-    try {
-        const orders = await Order.find({ 
-            status: 'Ready for Pickup', 
-            deliveryId: null 
-        });
-        res.status(200).json(orders);
-    } catch (err) {
-        res.status(500).json({ message: "Error fetching available orders", error: err });
-    }
-};
+// ... باقي الدوال (assignDelivery, updateOrderStatus, getUserOrders) كمليهم عادي بنفس الطريقة
 
 // 4. استلام الطيار للأوردر (Assign Delivery)
 exports.assignDelivery = async (req, res) => {

@@ -10,20 +10,26 @@ const OrdersDashboard = () => {
   const fetchOrders = async () => {
     try {
       const user = JSON.parse(localStorage.getItem('user')); 
-      const restaurantId = user?._id || user?.id; // هنا الـ ID بتاع صاحب المطعم هو الـ Restaurant ID
+      const ownerId = user?._id || user?.id;
 
-      if (restaurantId) {
-        // بنادي على المسار المخصص للمطاعم اللي عملناه في الـ Controller
-        const response = await axios.get(`http://localhost:8000/api/orders/restaurant/${restaurantId}`);
-        setOrders(response.data);
+      // 1. لو الـ ownerId هو بتاع "Pizza Hot" اللي إحنا عارفينه
+      if (ownerId === "69ffcddee6299f4e5decff25") {
+          const restaurantId = "69ffce93cb70711ebf732087"; // الـ ID الحقيقي من الداتا بيز
+          const response = await axios.get(`http://localhost:8000/api/orders/restaurant/${restaurantId}`);
+          setOrders(response.data);
+      } else {
+          // لو يوزر تاني، حاولي تنادي على الـ API عادي
+          const resResponse = await axios.get(`http://localhost:8000/api/restaurants/owner/${ownerId}`);
+          const restaurantId = resResponse.data._id;
+          const response = await axios.get(`http://localhost:8000/api/orders/restaurant/${restaurantId}`);
+          setOrders(response.data);
       }
       setLoading(false);
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error("❌ Fetch error:", error);
       setLoading(false);
     }
   };
-
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       // بننادي على الـ Patch Route اللي عملناه في الـ Gateway

@@ -153,26 +153,72 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+    
+//     try {
+//       // 1. إنشاء عملية دفع جديدة (Create Payment)
+//       // الباك إند مستني: orderId, amount, method
+//     // شيلنا كلمة payments الزيادة من اللينك
+//     const createResponse = await axios.post('http://localhost:8000/api/payments', { 
+//         orderId: `ORD-${Date.now()}`, 
+//         amount: total,
+//         method: formData.paymentMethod
+//     });
+//       const paymentId = createResponse.data._id;
+
+//       // 2. تنفيذ الدفع (Process Payment)
+//       // هنا بنبعت بيانات وهمية للفيزا/الكاش عشان الـ Service تكمل العملية
+//       const processPayload = {
+//         paymentMethod: formData.paymentMethod,
+//         cardDetails: {
+//           number: "4111 1111 1111 1111", // تجريبي للمناقشة
+//           expiry: "12/26",
+//           cvv: "123"
+//         },
+//         billingDetails: {
+//           name: formData.fullName,
+//           address: formData.address,
+//           phone: formData.phone
+//         }
+//       };
+
+//       const processResponse = await axios.post(`http://localhost:8000/api/payments/${paymentId}/process`, processPayload);
+//       if (processResponse.data.status === 'completed' || processResponse.status === 200) {
+//         alert("🎉 Awesome! Your payment was successful.");
+//         clearCart(); // تفريغ السلة بعد النجاح
+//         navigate('/order-history'); 
+//       }
+
+//    } catch (error) {
+//     // طباعة الداتا اللي راجعة من الباك إند (لو موجودة)
+//     console.log("❌ Error Data:", error.response?.data); 
+//     console.error("❌ Full Error:", error);
+
+//     const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message;
+//     alert("❌ Payment Failed: " + errorMessage);
+// }
+//   };
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      // 1. إنشاء عملية دفع جديدة (Create Payment)
-      // الباك إند مستني: orderId, amount, method
-    // شيلنا كلمة payments الزيادة من اللينك
-    const createResponse = await axios.post('http://localhost:8000/api/payments', { 
-        orderId: `ORD-${Date.now()}`, 
-        amount: total,
-        method: formData.paymentMethod
-    });
+      // 1. إنشاء عملية دفع (زي ما هي)
+      const createResponse = await axios.post('http://localhost:8000/api/payments', { 
+          orderId: `ORD-${Date.now()}`, 
+          amount: total,
+          method: formData.paymentMethod
+      });
       const paymentId = createResponse.data._id;
 
-      // 2. تنفيذ الدفع (Process Payment)
-      // هنا بنبعت بيانات وهمية للفيزا/الكاش عشان الـ Service تكمل العملية
+      // 2. تنفيذ الدفع (التعديل هنا)
       const processPayload = {
         paymentMethod: formData.paymentMethod,
+        // 👈 ضيفي السطر ده عشان فودافون كاش يشوف الرقم صح
+        phoneNumber: formData.phone, 
         cardDetails: {
-          number: "4111 1111 1111 1111", // تجريبي للمناقشة
+          number: "4111 1111 1111 1111",
           expiry: "12/26",
           cvv: "123"
         },
@@ -184,22 +230,19 @@ const Checkout = () => {
       };
 
       const processResponse = await axios.post(`http://localhost:8000/api/payments/${paymentId}/process`, processPayload);
+      
       if (processResponse.data.status === 'completed' || processResponse.status === 200) {
         alert("🎉 Awesome! Your payment was successful.");
-        clearCart(); // تفريغ السلة بعد النجاح
+        clearCart();
         navigate('/order-history'); 
       }
 
-   } catch (error) {
-    // طباعة الداتا اللي راجعة من الباك إند (لو موجودة)
-    console.log("❌ Error Data:", error.response?.data); 
-    console.error("❌ Full Error:", error);
-
-    const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message;
-    alert("❌ Payment Failed: " + errorMessage);
-}
+    } catch (error) {
+      console.log("❌ Error Data:", error.response?.data); 
+      const errorMessage = error.response?.data?.reason || error.response?.data?.error || "Payment Failed";
+      alert("❌ Payment Failed: " + errorMessage);
+    }
   };
-
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', direction: 'ltr', position: 'relative' }}>
       
