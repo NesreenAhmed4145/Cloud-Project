@@ -1,30 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
+// استدعاء كل الدوال (بما فيهم getMyDeliveries اللي عملت المشكلة)
 const { 
     createOrder, 
     getUserOrders, 
     updateOrderStatus, 
     getRestaurantOrders,
     getAvailableOrders,
-    assignDelivery // 👈 1. استدعينا دالة الاستلام هنا
+    assignDelivery,
+    getMyDeliveries
 } = require('../controllers/orderController');
 
-// 1. إنشاء أوردر
+// 1. المسارات الثابتة (لازم تبقى فوق عشان متتلخبطش مع الـ IDs)
 router.post('/', createOrder);
-
-// 2. مسارات الدليفري (لازم فوق عشان متتلخبطش مع الـ IDs)
 router.get('/available', getAvailableOrders); 
-
-// 👈 2. المسار الجديد بتاع الاستلام (هنحط POST و PATCH احتياطي عشان الفرونت إند)
 router.post('/assign', assignDelivery); 
 router.patch('/assign', assignDelivery); 
 
-// 3. مسارات الـ GET المحددة
+// 2. المسارات اللي فيها IDs
+router.get('/delivery/:deliveryId', getMyDeliveries); // 👈 المسار الجديد للعهدة
 router.get('/user/:userId', getUserOrders); 
 router.get('/restaurant/:restaurantId', getRestaurantOrders); 
-
-// 4. مسار التحديث العادي
 router.patch('/:id/status', updateOrderStatus); 
 
 module.exports = router;
