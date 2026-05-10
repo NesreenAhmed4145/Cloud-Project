@@ -12,6 +12,8 @@ app.use(cors());
 app.use(express.json()); 
 
 // الربط مع الراوتس
+// في ملف restaurant-service/index.js (أو app.js)
+// تأكدي إن السطر ده مكتوب كده بالظبط:
 app.use('/api/restaurants', require('./routes/restaurantRoutes'));
 // الاتصال بالمونجو
 mongoose.connect(process.env.MONGO_URI)

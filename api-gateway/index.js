@@ -77,11 +77,16 @@ app.use(createProxyMiddleware({
     pathFilter: '/api/users'
 }));
 
-// 2. توجيه طلبات الـ Restaurants (بدون أي تغيير - ده اللي هيرجع المطاعم تظهر)
+
+// في ملف api-gateway/server.js
+
+// 2. توجيه طلبات الـ Restaurants (بنافس ستايل الـ Order)
+// في ملف api-gateway/server.js
+// 2. توجيه طلبات الـ Restaurants (التعديل النهائي على طريقة Users)
 app.use(createProxyMiddleware({
-    target: RESTAURANT_SERVICE_URL, 
+    target: RESTAURANT_SERVICE_URL,
     changeOrigin: true,
-    pathFilter: '/api/restaurants'
+    pathFilter: '/api/restaurants' // 👈 رجعنا لـ pathFilter عشان نبعت المسار كامل
 }));
 
 // 3. توجيه طلبات الـ Orders

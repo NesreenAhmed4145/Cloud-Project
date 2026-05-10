@@ -1,3 +1,4 @@
+# 
 version: '3.8'
 
 services:
@@ -16,6 +17,7 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/food_delivery_users 
+      - JWT_SECRET=my_super_secret # 👈 التعديل الأهم هنا
       - PORT=5000
     depends_on:
       - mongodb
@@ -31,6 +33,7 @@ services:
       - "5001:5001"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/food_delivery_restaurants
+      - JWT_SECRET=my_super_secret # 👈 نفس الكلمة بالظبط
       - PORT=5001
     depends_on:
       - mongodb
@@ -46,6 +49,7 @@ services:
       - "5002:5002"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/food_delivery_orders
+      - JWT_SECRET=my_super_secret # 👈 ضفته هنا كمان عشان هتحتاجيه
       - PORT=5002
     depends_on:
       - mongodb
@@ -61,6 +65,7 @@ services:
       - "5003:5003"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/food_delivery_payments
+      - JWT_SECRET=my_super_secret # 👈 وهنا كمان
       - PORT=5003
     depends_on:
       - mongodb

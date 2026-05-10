@@ -1,4 +1,7 @@
 const Restaurant = require('../models/Restaurant');
+const mongoose = require('mongoose'); // 👈 ضيفي السطر ده فوق خالص
+
+
 
 // 1. عرض كل المطاعم (Customer)
 exports.getAllRestaurants = async (req, res) => {
@@ -101,5 +104,24 @@ exports.validateItems = async (req, res) => {
         res.json({ valid: true, totalPrice });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+// جلب بيانات المطعم عن طريق صاحب المطعم (Owner)
+exports.getRestaurantByOwner = async (req, res) => {
+    try {
+        const { ownerId } = req.params;
+        
+        // تحويل الـ ID لـ ObjectId عشان يطابق الـ Schema بالظبط
+        const restaurant = await Restaurant.findOne({ 
+            ownerId: new mongoose.Types.ObjectId(ownerId) 
+        });
+        
+        if (!restaurant) {
+            return res.status(404).json({ message: "No restaurant found for this owner" });
+        }
+        
+        res.status(200).json(restaurant);
+    } catch (err) {
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 };
