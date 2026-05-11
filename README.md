@@ -18,7 +18,7 @@ The entire system is deployed on a **Linux Virtual Machine (VM)** to ensure a pr
 
 ##  Project Team & Roles (Group 6)
 | Member | Role | 
-| :--- | :--- | :--- |
+| :--- | :--- | 
 | **Rahma Shaaban** | **BackEnd & Doc Lead** | 
 | **Nesreen Ahmed** | **Backend Engineer** | 
 | **Menna Ibrahim** | **Backend Engineer & Integration** | 
