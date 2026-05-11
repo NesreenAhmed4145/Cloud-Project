@@ -19,13 +19,12 @@ The entire system is deployed on a **Linux Virtual Machine (VM)** to ensure a pr
 ##  Project Team & Roles (Group 6)
 | Member | Role | Key Responsibilities |
 | :--- | :--- | :--- |
-| **Rahma Shaaban** | **Doc Lead & Integration** | Integration Lead, VM Deployment, API Gateway, Multi-Environment Orchestration (Linux), and K8s Deployment. |
-| **Nesreen Ahmed** | **Backend Engineer** | User Service Development, JWT Authentication, and Secure Identity Management. |
-| **Menna Ibrahim** | **Backend Engineer** | Order Service Development, Order Lifecycle (Pending to Delivered), and Delivery Assignment Logic. |
-| **Nesma Ahmed** | **Frontend Engineer** | React.js Dashboards (Customer & Restaurant Interfaces) and Image Hosting Integration. |
-| **Rokia Ahmed** | **DevOps Specialist** | Kubernetes (K8s) Manifests (Deployments/Services), Network Isolation, and Linux System Optimization. |
-| **Mona Bahaa** | **Infrastructure & Backend** | Restaurant Service Development, Menu Management Logic, and Payment Mock Service. |
-
+| **Rahma Shaaban** | **BackEnd & Doc Lead** | 
+| **Nesreen Ahmed** | **Backend Engineer** | 
+| **Menna Ibrahim** | **Backend Engineer & Integration** | 
+| **Nesma Ahmed** | **Backend Engineer** |
+| **Rokia Ahmed** | **API & Frontend** | 
+| **Mona Bahaa** | **API & Frontend** | 
 ---
 
 ##  System Architecture
@@ -38,7 +37,7 @@ The system architecture follows the **Database-per-Service** pattern to ensure c
 
 ##  Microservices Functional Breakdown
 
-### 1. Restaurant Service (Mona Bahaa)
+### 1. Restaurant Service (Rahma Shaaban)
 - **Manage Profiles:** Handles restaurant metadata (Name, Cuisine, Location).
 - **Admin Menu Control:** Dynamic management of items, prices, and **Availability Toggling**.
 - **Owner Dashboard Support:** Fetching specific restaurant data via `ownerId`.
@@ -51,10 +50,17 @@ The system architecture follows the **Database-per-Service** pattern to ensure c
 - **Order Workflow:** Manages status (Pending -> Ready -> Out for Delivery -> Delivered).
 - **Delivery Integration:** Assigning orders to delivery personnel via `deliveryId`.
 
-### 4. API Gateway (Rahma Shaaban)
+### 4. API Gateway (Mona Bahaa & Rokia Ahmed)
 - **Centralized Proxy:** Routing all traffic via `http-proxy-middleware`.
 - **Timeout Protection:** Configured `proxyTimeout` (15s) to prevent 504 errors on the VM.
 
+### 5. Payment ( Nesma Ahmed )
+- **Transaction Flow:** Simulating secure payment processing and status updates.
+  
+### 6. FrontEnd (Mona Bahaa & Rokia Ahmed)
+- **Customer Dashboard:** Responsive UI for browsing and ordering.
+- **Partner Dashboard:** For restaurant owners to manage menus and orders.
+  
 ---
 
 ##  Containerization & Environments (Requirement #4)
